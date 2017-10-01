@@ -21,4 +21,6 @@ sudo sed -i "s/bgpd=no/bgpd=yes/" /etc/quagga/daemons
 sudo adduser vagrant quagga
 /etc/init.d/quagga restart
 
+
+sudo chmod 666 /etc/bash.bashrc
 echo "export VTYSH_PAGER=more" >> /etc/bash.bashrc
