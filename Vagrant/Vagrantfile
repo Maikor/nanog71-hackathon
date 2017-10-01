@@ -20,7 +20,7 @@ Vagrant.configure(2) do |config|
   config.vm.define "controller" do |controller|
     controller.vm.box = "ciscoxr/ubuntu-xenial-docker"
     controller.vm.network :private_network, virtualbox__intnet: "link3", ip: "10.1.3.10"
-    #controller.vm.provision :shell, path: "controller.sh", privileged: false
+    controller.vm.provision :shell, path: "setup_controller.sh", privileged: true
   end
 
   config.vm.define "rtr" do |rtr|
