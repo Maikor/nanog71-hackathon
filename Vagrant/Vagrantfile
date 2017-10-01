@@ -6,19 +6,19 @@ Vagrant.configure(2) do |config|
 
 
   config.vm.define "linux_box_1" do |linux_box_1|
-    linux_box_1.vm.box = "ciscoxr/ubuntu-xenial-docker"
+    linux_box_1.vm.box = "bento/ubuntu-16.04"
     linux_box_1.vm.network :private_network, virtualbox__intnet: "link1", ip: "10.1.1.10"
     linux_box_1.vm.provision :shell, path: "scripts/install_quagga_1.sh", privileged: false
   end
 
   config.vm.define "linux_box_2" do |linux_box_2|
-    linux_box_2.vm.box = "ciscoxr/ubuntu-xenial-docker"
+    linux_box_2.vm.box = "bento/ubuntu-16.04"
     linux_box_2.vm.network :private_network, virtualbox__intnet: "link2", ip: "10.1.2.10"
     linux_box_2.vm.provision :shell, path: "scripts/install_quagga_2.sh", privileged: false
   end
 
   config.vm.define "controller" do |controller|
-    controller.vm.box = "ciscoxr/ubuntu-xenial-docker"
+    controller.vm.box = "bento/ubuntu-16.04"
     controller.vm.network :private_network, virtualbox__intnet: "link3", ip: "10.1.3.10"
     controller.vm.provision :shell, path: "setup_controller.sh", privileged: true
   end
