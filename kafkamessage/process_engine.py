@@ -11,6 +11,7 @@ import json
 
 print "Asda"
 
+'''
 
 def kafkaWorker(self):
         # With the local Rib ready, push routes to Kafka. This is meant to 
@@ -106,7 +107,7 @@ finally:
 
 
 
-
+'''
 
 class TalkToKafka(object):
 
