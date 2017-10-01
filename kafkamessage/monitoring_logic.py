@@ -7,4 +7,4 @@ with open("business_logic.yaml", 'r') as stream:
 
     x = TalkToKafka("business_logic")
     x.kafka_push(message_to_dump=data_loaded)
-    x.kafka_pull()
+    #x.kafka_pull()
