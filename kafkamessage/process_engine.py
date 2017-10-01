@@ -9,7 +9,6 @@
 from confluent_kafka import Consumer, Producer, KafkaError
 import json
 
-print "Asda"
 
 '''
 
