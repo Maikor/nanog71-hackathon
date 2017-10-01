@@ -1,6 +1,3 @@
-
-
-
 # Purpose of the code is to talk to and listen from Kafka.
 # Listen to the topic on the Kafka bus, pass it on to the code to check if it matches the threshold.
 # If it matches, open a event on the Kafka bus.
@@ -8,7 +5,6 @@
 
 from confluent_kafka import Consumer, Producer, KafkaError
 import json
-
 
 '''
 
@@ -108,8 +104,8 @@ finally:
 
 '''
 
-class TalkToKafka(object):
 
+class TalkToKafka(object):
     def __init__(self, topic):
         self.topic = topic
         self.bootstrapserver = 'localhost:9092'
@@ -120,17 +116,16 @@ class TalkToKafka(object):
         producer.poll(0)
         producer.flush()
 
-
     def kafka_pull(self):
 
         consumer_settings = {
-    	'bootstrap.servers': self.bootstrapserver,
-    	'group.id': 'mygroup',
-    	'client.id': 'client-1',
-    	'enable.auto.commit': True,
-    	'session.timeout.ms': 6000,
-    	'default.topic.config': {'auto.offset.reset': 'smallest'}
-		}
+            'bootstrap.servers': self.bootstrapserver,
+            'group.id': 'mygroup',
+            'client.id': 'client-1',
+            'enable.auto.commit': True,
+            'session.timeout.ms': 6000,
+            'default.topic.config': {'auto.offset.reset': 'smallest'}
+        }
 
         c = Consumer(consumer_settings)
         c.subscribe([self.topic])
@@ -153,7 +148,7 @@ class TalkToKafka(object):
             c.close()
 
 
-message = { '1': '123', '2': '1234'}
+message = {'1': '123', '2': '1234'}
 topic = 'class_test'
 x = TalkToKafka(topic)
 x.kafka_push(message_to_dump=message)
