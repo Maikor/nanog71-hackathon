@@ -137,16 +137,15 @@ class TalkToKafka(object):
         c.subscribe([self.topic])
         try:
             while True:
-            msg = c.poll(0.1)
-            if msg is None:
-                continue
-        elif not msg.error():
-            print('Received message: {0}'.format(msg.value()))
-        elif msg.error().code() == KafkaError._PARTITION_EOF:
-            print('End of partition reached {0}/{1}'
-                  .format(msg.topic(), msg.partition()))
-        else:
-            print('Error occured: {0}'.format(msg.error().str()))
+                msg = c.poll(0.1)
+                if msg is None:
+                    continue
+                elif not msg.error():
+                    print('Received message: {0}'.format(msg.value()))
+                elif msg.error().code() == KafkaError._PARTITION_EOF:
+                    print('End of partition reached {0}/{1}'.format(msg.topic(), msg.partition()))
+                else:
+                    print('Error occured: {0}'.format(msg.error().str()))
 
         except KeyboardInterrupt:
             pass
