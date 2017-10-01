@@ -110,20 +110,20 @@ finally:
 
 class TalkToKafka(object):
 
-	def __init__(self, topic):
-		self.topic = topic
+    def __init__(self, topic):
+        self.topic = topic
 
 
-	def kafka_push(self, message_to_dump):
-		producer = Producer({'bootstrap.servers': bootstrapserver})
-		producer.produce(self.topic, value=json.dumps(message_to_dump))
-		producer.poll(0)
-		producer.flush()
+    def kafka_push(self, message_to_dump):
+        producer = Producer({'bootstrap.servers': bootstrapserver})
+        producer.produce(self.topic, value=json.dumps(message_to_dump))
+        producer.poll(0)
+        producer.flush()
 
 
-	def kafka_pull(self):
-		c = Consumer(consumer_settings)
-		consumer_settings = {
+    def kafka_pull(self):
+
+        consumer_settings = {
     	'bootstrap.servers': bootstrapserver,
     	'group.id': 'mygroup',
     	'client.id': 'client-1',
@@ -132,13 +132,13 @@ class TalkToKafka(object):
     	'default.topic.config': {'auto.offset.reset': 'smallest'}
 		}
 
-		c = Consumer(consumer_settings)
-		c.subscribe([self.topic])
-		try:
-			while True:
-        	msg = c.poll(0.1)
-        	if msg is None:
-            continue
+        c = Consumer(consumer_settings)
+        c.subscribe([self.topic])
+        try:
+            while True:
+            msg = c.poll(0.1)
+            if msg is None:
+                continue
         elif not msg.error():
             print('Received message: {0}'.format(msg.value()))
         elif msg.error().code() == KafkaError._PARTITION_EOF:
@@ -147,11 +147,11 @@ class TalkToKafka(object):
         else:
             print('Error occured: {0}'.format(msg.error().str()))
 
-		except KeyboardInterrupt:
-    		pass
+        except KeyboardInterrupt:
+            pass
 
-		finally:
-    		c.close()
+        finally:
+            c.close()
 
 
 message = { '1': '123', '2': '1234'}
