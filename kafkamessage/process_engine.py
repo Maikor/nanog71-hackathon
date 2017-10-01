@@ -113,7 +113,7 @@ class TalkToKafka(object):
 
     def __init__(self, topic):
         self.topic = topic
-
+        self.bootstrapserver = 'localhost:9092'
 
     def kafka_push(self, message_to_dump):
         producer = Producer({'bootstrap.servers': bootstrapserver})
@@ -125,7 +125,7 @@ class TalkToKafka(object):
     def kafka_pull(self):
 
         consumer_settings = {
-    	'bootstrap.servers': bootstrapserver,
+    	'bootstrap.servers': self.bootstrapserver,
     	'group.id': 'mygroup',
     	'client.id': 'client-1',
     	'enable.auto.commit': True,
