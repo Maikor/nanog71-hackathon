@@ -116,7 +116,7 @@ class TalkToKafka(object):
         self.bootstrapserver = 'localhost:9092'
 
     def kafka_push(self, message_to_dump):
-        producer = Producer({'bootstrap.servers': bootstrapserver})
+        producer = Producer({'bootstrap.servers': self.bootstrapserver})
         producer.produce(self.topic, value=json.dumps(message_to_dump))
         producer.poll(0)
         producer.flush()
