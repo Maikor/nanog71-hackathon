@@ -157,5 +157,5 @@ class TalkToKafka(object):
 message = { '1': '123', '2': '1234'}
 topic = 'class_test'
 x = TalkToKafka(topic)
-x.kakfa_push(message)
+x.kafka_push(message_to_dump=message)
 x.kafka_pull()
