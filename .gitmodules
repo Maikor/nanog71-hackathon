@@ -1,0 +1,3 @@
+[submodule "slapi-rshuttle"]
+	path = slapi-rshuttle
+	url = https://github.com/akshshar/route-shuttle
