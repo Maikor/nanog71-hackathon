@@ -2,6 +2,13 @@ monitor bytes out:
   description: monitoring thresholding bytes
   threshold: 3000
   action:
-    type: route-override
-    prefix: 20.1.2.0/24
-    next-hop: 10.1.2.20
+    paths:
+      nexthop: 10.1.2.10
+      event: add
+      family: 2
+      admin_distance: 10
+    prefix_len: 24
+    prefix: 20.1.1.0/24
+    family: 2
+    network: 20.1.1.0
+

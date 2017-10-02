@@ -6,113 +6,20 @@
 from confluent_kafka import Consumer, Producer, KafkaError
 import json
 
-'''
-
-def kafkaWorker(self):
-        # With the local Rib ready, push routes to Kafka. This is meant to 
-        # serve as a streaming set of routes to router clients which will be
-        # kafka consumers. This is NOT a way to resync if the router dies or 
-        # router client disconnects - for that sync with the redis database
-        # first and then start listening to fresh messages from Kafka for route events. 
-
-        self.rib_producer = Producer({'bootstrap.servers': self.bootstrap_server})
-
-        if self.get_nodes():
-            for node in self.nodes.keys():
-               
-               topic =  self.nodes[node].hash
-               
-               # fetch localRib routes from Redis, push to Kafka bus
-               localRib = ast.literal_eval(self.redis.hget(node, 'localRib'))
-               if localRib:
-                   for route in localRib:
-                       logger.debug(route)
-                    #   self.shuttler.rtQueue.put(route) 
-                       try:
-                           self.rib_producer.produce(topic, value=json.dumps(route), callback=self.delivery_callback)
-                           self.rib_producer.poll(0)
-                       except BufferError as e:
-                           logger.debug('%% Local producer queue is full (%d messages awaiting delivery): try again\n' %
-                           len(self.rib_producer))
-                           #  putting the poll() first to block until there is queue space available. 
-                           # This blocks for RIB_PRODUCER_WAIT_INTERVAL seconds because  message delivery can take some time
-                           # if there are temporary errors on the broker (e.g., leader failover).    
-                           self.rib_producer.poll(RIB_PRODUCER_WAIT_INTERVAL*1000) 
-      
-                           # Now try again when there is hopefully some free space on the queue
-                           self.rib_producer.produce(topic, value=json.dumps(route), callback=self.delivery_callback)
-
-
-                   # Wait until all messages have been delivered
-                   logger.debug('%% Waiting for %d deliveries\n' % len(self.rib_producer))
-                   self.rib_producer.flush()
-
-
-bootstrapserver = 'localhost:9092'
-topic = 'testing_producer'
-
-
-def kakfa_push():
-	
-	route = { '1': '123', '2': '1234'}
-	producer = Producer({'bootstrap.servers': bootstrapserver})
-	producer.produce(topic, value=json.dumps(route))
-	producer.poll(0)
-	producer.flush()
-
-
-
-
-kakfa_push()
-
-
-
-
-consumer_settings = {
-    'bootstrap.servers': bootstrapserver,
-    'group.id': 'mygroup',
-    'client.id': 'client-1',
-    'enable.auto.commit': True,
-    'session.timeout.ms': 6000,
-    'default.topic.config': {'auto.offset.reset': 'smallest'}
-}
-
-c = Consumer(consumer_settings)
-
-c.subscribe([topic])
-
-try:
-    while True:
-        msg = c.poll(0.1)
-        if msg is None:
-            continue
-        elif not msg.error():
-            print('Received message: {0}'.format(msg.value()))
-        elif msg.error().code() == KafkaError._PARTITION_EOF:
-            print('End of partition reached {0}/{1}'
-                  .format(msg.topic(), msg.partition()))
-        else:
-            print('Error occured: {0}'.format(msg.error().str()))
-
-except KeyboardInterrupt:
-    pass
-
-finally:
-    c.close()
-
-
-
-'''
-
-
 class TalkToKafka(object):
     def __init__(self, topic):
         self.topic = topic
+	self.monitoring_data = {}
         self.bootstrapserver = 'localhost:9092'
 
-    def kafka_push(self, message_to_dump):
+    def kafka_push(self, message_to_dump, custom_topic=None):
+        if custom_topic is not None:
+            topic = custom_topic
+        else:
+            topic = self.topic
+
         producer = Producer({'bootstrap.servers': self.bootstrapserver})
-        producer.produce(self.topic, value=json.dumps(message_to_dump))
+        producer.produce(topic, value=json.dumps(message_to_dump))
         producer.poll(0)
         producer.flush()
 
@@ -124,9 +31,12 @@ class TalkToKafka(object):
             'client.id': 'client-1',
             'enable.auto.commit': True,
             'session.timeout.ms': 6000,
-            'default.topic.config': {'auto.offset.reset': 'smallest'}
+            'default.topic.config': {'auto.offset.reset': 'largest',
+                                     'auto.commit.interval.ms' : 1000,
+                                     'enable.auto.commit' : True}
         }
 
+        print self.topic
         c = Consumer(consumer_settings)
         c.subscribe([self.topic])
         try:
@@ -135,7 +45,25 @@ class TalkToKafka(object):
                 if msg is None:
                     continue
                 elif not msg.error():
-                    print('Received message: {0}'.format(msg.value()))
+                    #print('Received message: {0}'.format(msg.value()))
+                    print msg.value()
+		    listen_variable = json.loads(msg.value())
+               	    
+		    print (listen_variable)
+                    try:
+		        for interface in listen_variable['interfaces']:
+                            if interface['interface-name'] == "GigabitEthernet0/0/0/2":
+                                if int(interface['total-bytes-transmitted']) > 4800:
+                            	    print 'threshold exceeded'
+                                    print "message_to_dump = 1"
+				    self.kafka_push(message_to_dump=1, custom_topic="event")
+                                else:
+                                    print "threshold not exceeded"
+                                    print "message_to_dump = 0"
+                                    self.kafka_push(message_to_dump=0, custom_topic="event")
+                    except Exception as e:
+                            print "Error while parsing data"
+                            print e
                 elif msg.error().code() == KafkaError._PARTITION_EOF:
                     print('End of partition reached {0}/{1}'.format(msg.topic(), msg.partition()))
                 else:
@@ -146,10 +74,3 @@ class TalkToKafka(object):
 
         finally:
             c.close()
-
-
-message = {'1': '123', '2': '1234'}
-topic = 'class_test'
-x = TalkToKafka(topic)
-x.kafka_push(message_to_dump=message)
-x.kafka_pull()
